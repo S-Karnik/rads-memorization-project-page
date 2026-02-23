@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+    content="Steering Away from Memorization: Reachability-Constrained Reinforcement Learning for Text-to-Image Diffusion">
+  <meta name="keywords" content="LLMs, AI Safety, Reachability Analysis">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Steering Away from Memorization: Reachability-Constrained Reinforcement Learning for Text-to-Image Diffusion
+  </title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.png">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+
+<body>
+
+  <style>
+    .video-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      /* Keeps alignment consistent */
+      gap: 20px;
+    }
+
+    .video-container .video-box {
+      flex: 1 1 45%;
+      /* Ensures side-by-side layout */
+      max-width: 500px;
+      text-align: center;
+    }
+
+    .video-box video {
+      width: 80%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .video-box p {
+      width: 80%;
+      /* Makes text match video width */
+      margin: 5px auto;
+      /* Centers text */
+      text-align: center;
+      display: block;
+    }
+  </style>
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">Steering Away from Memorization: Reachability-Constrained
+              Reinforcement Learning for Text-to-Image Diffusion</h1>
+            <div class="is-size-4 publication-authors">
+              <span class="author-block">
+                Sathwik Karnik<sup>1*</sup>,
+              </span>
+              <span class="author-block">
+                Juyeop Kim<sup>2*</sup>,
+              </span>
+              <span class="author-block">
+                Sanmi Koyejo<sup>1</sup>,
+              </span>
+              <span class="author-block">
+                Jong-Seok Lee<sup>2</sup>,
+              </span>
+              <span class="author-block">
+                Somil Bansal<sup>1</sup>
+              </span>
+            </div>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block"><sup>1</sup>Stanford University</span>
+              <span class="author-block"><sup>2</sup>Yonsei University</span>
+            </div>
+
+            <!-- Publication Links -->
+            <div class="column has-text-centered">
+              <div class="publication-links"
+                style="display: flex; justify-content: center; gap: 20px; align-items: flex-start;">
+
+                <!-- Paper Link -->
+                <div style="text-align: center;">
+                  <span class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                    </span>
+                    <span>Paper</span>
+                  </span>
+                </div>
+
+                <!-- arXiv Link -->
+                <div style="text-align: center;">
+                  <span class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                    </span>
+                    <span>arXiv</span>
+                  </span>
+                </div>
+
+                <!-- Code Link with "Coming Soon" -->
+                <div style="text-align: center;">
+                  <span class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github"></i>
+                    </span>
+                    <span>Code</span>
+                  </span>
+                  <div style="margin-top: 6px; font-size: 0.85em; color: #777;">
+                    <em>Coming Soon</em>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <!-- /Publication Links -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="margin-top: -5rem;">
+    <div class="container is-max-desktop">
+      <!-- Abstract -->
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-five-sixths">
+          <h2 class="title is-3">Abstract</h2>
+          <div class="content has-text-justified">
+            <p>
+              Text-to-image diffusion models often memorize training data, revealing a fundamental failure to generalize
+              beyond the training set. Current mitigation strategies typically sacrifice image quality or prompt
+              alignment to reduce memorization. To address this, we propose <b>R</b>eachability-<b>A</b>ware
+              <b>D</b>iffusion <b>S</b>teering (RADS), an inference-time framework that prevents
+              memorization while preserving generation fidelity. RADS models the diffusion denoising process as a
+              dynamical system and applies concepts from reachability analysis to approximate the "backward reachable
+              tube" - the set of intermediate states that inevitably evolve into memorized samples. We then formulate
+              mitigation as a constrained reinforcement learning (RL) problem, where a policy learns to steer the
+              trajectory away from memorization via minimal perturbations in the caption embedding space. Empirical
+              evaluations show that RADS achieves a superior Pareto frontier between generation diversity (SSCD),
+              quality (FID), and alignment (CLIP) compared to state-of-the-art baselines. Crucially, RADS provides
+              robust mitigation without modifying the diffusion backbone, offering a plug-and-play solution for safe
+              generation.
+            </p>
+          </div>
+        </div>
+      </div>
+      <!--/ Abstract -->
+    </div>
+  </section>
+
+  <section class="section" style="margin-top: -4rem;">
+    <div class="container is-max-desktop">
+      <!-- Teaser figure. -->
+      <div class="column has-text-centered">
+        <img src="./static/images/rads_teaser_fig.jpg" class="motivation-image" alt="Motivation (part 1)"
+          style="width: 100%; height: auto;" />
+      </div>
+      <!--/ Teaser figure. -->
+    </div>
+  </section>
+
+  <section class="section" style="margin-top: -4rem;">
+    <div class="container is-max-desktop">
+      <div class="box" style="background:#f9f9f9; border-left: 5px solid #006400;">
+        <h2 class="title is-4">Key Findings</h2>
+        <p>
+          Treating the diffusion denoising process as a dynamical system, <b>RADS</b> leverages reachability
+          analysis from control theory to provide key capabilities for mitigating memorization in text-to-image
+          generation:
+        </p>
+        <ol style="margin-top:0.8rem; font-size:1rem; line-height:1.8; list-style:none; padding-left:0;">
+          <li style="margin-bottom:0.7rem; display:flex; align-items:flex-start;">
+            <span
+              style="flex-shrink:0; display:inline-block; width:26px; height:26px; line-height:26px; border-radius:50%; background:#006400; color:#fff; text-align:center; font-weight:bold; margin-right:10px;">
+              1
+            </span>
+            <span>RADS successfully prevents the reproduction of memorized training data entirely at inference
+              time.</span>
+          </li>
+          <li style="display:flex; align-items:flex-start;">
+            <span
+              style="flex-shrink:0; display:inline-block; width:26px; height:26px; line-height:26px; border-radius:50%; background:#006400; color:#fff; text-align:center; font-weight:bold; margin-right:10px;">
+              2
+            </span>
+            <span>By applying minimal perturbations in the continuous caption embedding space, it serves as a
+              plug-and-play solution that requires no destructive modifications or fine-tuning of the pre-trained
+              diffusion weights.</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content">
+            <p>
+              This website borrows the style of the <a href="https://github.com/nerfies/nerfies.github.io">Nerfies
+                website source code</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+
+</html>
