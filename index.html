@@ -122,17 +122,14 @@
                   </a>
                 </div>
 
-                <!-- Code Link with "Coming Soon" -->
+                <!-- Code Link -->
                 <div style="text-align: center;">
-                  <span class="external-link button is-normal is-rounded is-dark">
+                  <a href="https://github.com/S-Karnik/rads-paper-repo" class="external-link button is-normal is-rounded is-dark">
                     <span class="icon">
                       <i class="fab fa-github"></i>
                     </span>
                     <span>Code</span>
-                  </span>
-                  <div style="margin-top: 6px; font-size: 0.85em; color: #777;">
-                    <em>Coming Soon</em>
-                  </div>
+                  </a>
                 </div>
 
               </div>
@@ -152,19 +149,18 @@
           <h2 class="title is-3">Abstract</h2>
           <div class="content has-text-justified">
             <p>
-              Text-to-image diffusion models often memorize training data, revealing a fundamental failure to generalize
-              beyond the training set. Current mitigation strategies typically sacrifice image quality or prompt
+              Text-to-image diffusion models are susceptible to memorization, revealing a fundamental failure to
+              generalize beyond the training set. Current mitigation approaches often sacrifice image quality or prompt
               alignment to reduce memorization. To address this, we propose <b>R</b>eachability-<b>A</b>ware
-              <b>D</b>iffusion <b>S</b>teering (RADS), an inference-time framework that prevents
-              memorization while preserving generation fidelity. RADS models the diffusion denoising process as a
-              dynamical system and applies concepts from reachability analysis to approximate the "backward reachable
-              tube" - the set of intermediate states that inevitably evolve into memorized samples. We then formulate
-              mitigation as a constrained reinforcement learning (RL) problem, where a policy learns to steer the
-              trajectory away from memorization via minimal perturbations in the caption embedding space. Empirical
-              evaluations show that RADS achieves a superior Pareto frontier between generation diversity (SSCD),
-              quality (FID), and alignment (CLIP) compared to state-of-the-art baselines. Crucially, RADS provides
-              robust mitigation without modifying the diffusion backbone, offering a plug-and-play solution for safe
-              generation.
+              <b>D</b>iffusion <b>S</b>teering (RADS), an offline-trained, sampling-time control framework that
+              mitigates memorization while maintaining generation fidelity. RADS models the diffusion denoising process
+              as a dynamical system and learns a policy-conditioned reachability value function that estimates future
+              memorization risk along the denoising trajectory. This motivates a constrained reinforcement learning
+              (RL) formulation, where a policy learns to steer the trajectory away from memorization via perturbations
+              in the caption embedding space. Empirical evaluations show that RADS achieves a stronger empirical Pareto
+              frontier between generation diversity (SSCD), quality (FID), and alignment (CLIP) compared to
+              state-of-the-art inference-time baselines. Crucially, RADS applies the learned controller during
+              sampling time, separating memorization mitigation from the pretrained model.
             </p>
           </div>
         </div>
