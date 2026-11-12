@@ -181,10 +181,9 @@
   .blog .grid-4 { grid-template-columns: repeat(2, 1fr); }
   .blog .grid-6 { grid-template-columns: repeat(3, 1fr); gap: 8px; }
 
-  /* Memorized and RADS side by side, prior work full width underneath. */
-  .blog .compare { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .blog .compare .ours { order: 2; }
-  .blog .compare .prior { order: 3; grid-column: 1 / -1; }
+  /* Keep memorized, prior work and RADS in one row at equal size. */
+  .blog .compare { gap: 8px; }
+  .blog .compare .cell .cap { font-size: .78rem; padding: 5px 4px; white-space: nowrap; }
 
 
   /* Wide two-panel plots: keep them legible and let the reader swipe. */
