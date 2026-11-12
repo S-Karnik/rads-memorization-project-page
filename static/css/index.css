@@ -155,3 +155,45 @@ body {
 #interpolation-image-wrapper img {
   border-radius: 5px;
 }
+
+/* ---------- Phone layout ---------- */
+@media screen and (max-width: 768px) {
+  /* Tighter header; bottom padding kept so the sections' negative top margins still line up. */
+  .hero-body {
+    padding: 2rem 1rem 3rem;
+  }
+
+  .publication-title.title.is-1 {
+    font-size: 1.75rem;
+    line-height: 1.25;
+  }
+
+  .publication-authors.is-size-4 {
+    font-size: 1.1rem !important;
+  }
+
+  .publication-authors.is-size-5 {
+    font-size: 0.95rem !important;
+  }
+
+  .publication-venue.is-size-4 {
+    font-size: 1.15rem !important;
+  }
+
+  .publication-links {
+    gap: 10px !important;
+    flex-wrap: wrap;
+  }
+
+  /* Justified text leaves large word gaps on a narrow screen. */
+  .content.has-text-justified {
+    text-align: left !important;
+  }
+
+  /* Let the teaser video run edge to edge. */
+  .teaser-video-section,
+  .teaser-video-section .column {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
