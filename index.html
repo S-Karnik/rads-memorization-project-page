@@ -18,6 +18,11 @@
   <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
   <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="stylesheet" href="./static/css/blog.css">
+  <script>
+    window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] } };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" async></script>
   <link rel="icon" href="./static/images/favicon.png">
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -152,144 +157,277 @@
     </div>
   </section>
 
-  <section class="section" style="margin-top: -4rem;">
-    <div class="container is-max-desktop">
-      <!-- Abstract -->
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-five-sixths">
-          <h2 class="title is-3">Abstract</h2>
-          <div class="content has-text-justified">
-            <p>
-              Text-to-image diffusion models are susceptible to memorization, revealing a fundamental failure to
-              generalize beyond the training set. Current mitigation approaches often sacrifice image quality or prompt
-              alignment to reduce memorization. To address this, we propose <b>R</b>eachability-<b>A</b>ware
-              <b>D</b>iffusion <b>S</b>teering (RADS), an offline-trained, sampling-time control framework that
-              mitigates memorization while maintaining generation fidelity. RADS models the diffusion denoising process
-              as a dynamical system and learns a policy-conditioned reachability value function that estimates future
-              memorization risk along the denoising trajectory. This motivates a constrained reinforcement learning
-              (RL) formulation, where a policy learns to steer the trajectory away from memorization via perturbations
-              in the caption embedding space. Empirical evaluations show that RADS achieves a stronger empirical Pareto
-              frontier between generation diversity (SSCD), quality (FID), and alignment (CLIP) compared to
-              state-of-the-art inference-time baselines. Crucially, RADS applies the learned controller during
-              sampling time, separating memorization mitigation from the pretrained model.
-            </p>
-          </div>
-        </div>
-      </div>
-      <!--/ Abstract -->
-    </div>
-  </section>
+  <main class="blog">
+    <nav class="toc" aria-label="Table of contents">
+      <div class="toc-title">On this page</div>
+      <ol>
+        <li><a href="#problem">The problem</a></li>
+        <li><a href="#early">Memorization happens early</a></li>
+        <li><a href="#method">How RADS works</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#examples">Examples</a></li>
+        <li><a href="#citation">Citation</a></li>
+      </ol>
+    </nav>
 
-  <section class="section" style="margin-top: -4rem;">
-    <div class="container is-max-desktop">
-      <div class="box" style="background:#f9f9f9; border-left: 5px solid #006400;">
-        <h2 class="title is-4">Key Findings</h2>
-        <p>
-          Treating the diffusion denoising process as a dynamical system, <b>RADS</b> leverages reachability
-          analysis from control theory to provide key capabilities for mitigating memorization in text-to-image
-          generation:
+    <!-- ---------- punchline ---------- -->
+    <section id="punchline">
+      <div class="wrap">
+        <p class="punchline">Text-to-image models sometimes <b>copy</b> their training data.</p>
+        <p class="punchline">RADS <b>steers</b> them away while they generate, with no retraining.</p>
+        <details class="abstract">
+          <summary>Read the abstract</summary>
+          <p>
+            Text-to-image diffusion models are susceptible to memorization, revealing a fundamental failure to
+            generalize beyond the training set. Current mitigation approaches often sacrifice image quality or prompt
+            alignment to reduce memorization. To address this, we propose <b>R</b>eachability-<b>A</b>ware
+            <b>D</b>iffusion <b>S</b>teering (RADS), an offline-trained, sampling-time control framework that
+            mitigates memorization while maintaining generation fidelity. RADS models the diffusion denoising process
+            as a dynamical system and learns a policy-conditioned reachability value function that estimates future
+            memorization risk along the denoising trajectory. This motivates a constrained reinforcement learning
+            (RL) formulation, where a policy learns to steer the trajectory away from memorization via perturbations
+            in the caption embedding space. Empirical evaluations show that RADS achieves a stronger empirical Pareto
+            frontier between generation diversity (SSCD), quality (FID), and alignment (CLIP) compared to
+            state-of-the-art inference-time baselines. Crucially, RADS applies the learned controller during
+            sampling time, separating memorization mitigation from the pretrained model.
+          </p>
+        </details>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ---------- the problem ---------- -->
+    <section id="problem">
+      <div class="wrap">
+        <h2>Existing fixes trade one problem for another<span class="sub">Stable Diffusion v1.4, one memorized prompt, three outcomes.</span></h2>
+        <p class="lead">
+          Some captions make Stable Diffusion reproduce a specific training image almost exactly, which is a
+          problem when that image is copyrighted or private. Existing inference-time fixes tend to either leave
+          the copy in place or remove it by damaging the image. Below, two prior methods still return the
+          memorized living-room photo, and another replaces the beach with a table.
         </p>
-        <ol style="margin-top:0.8rem; font-size:1rem; line-height:1.8; list-style:none; padding-left:0;">
-          <li style="margin-bottom:0.7rem; display:flex; align-items:flex-start;">
-            <span
-              style="flex-shrink:0; display:inline-block; width:26px; height:26px; line-height:26px; border-radius:50%; background:#006400; color:#fff; text-align:center; font-weight:bold; margin-right:10px;">
-              1
-            </span>
-            <span>RADS successfully prevents the reproduction of memorized training data entirely at inference
-              time.</span>
-          </li>
-          <li style="display:flex; align-items:flex-start;">
-            <span
-              style="flex-shrink:0; display:inline-block; width:26px; height:26px; line-height:26px; border-radius:50%; background:#006400; color:#fff; text-align:center; font-weight:bold; margin-right:10px;">
-              2
-            </span>
-            <span>By applying minimal perturbations in the continuous caption embedding space, it serves as a
-              plug-and-play solution that requires no destructive modifications or fine-tuning of the pre-trained
-              diffusion weights.</span>
-          </li>
+        <p class="prompt"><b>Prompt:</b> <i>"Designart Serene Maldives Seashore at Sunset Oversized Landscape Canvas Art - 4 Panels"</i></p>
+        <div class="grid grid-3 compare">
+          <figure class="cell fail">
+            <div class="cap">Memorized</div>
+            <img src="./static/images/paper/maldives_memorized.jpg" alt="Memorized output: a canvas print of a beach hanging above a sofa." loading="lazy">
+          </figure>
+          <figure class="cell prior">
+            <div class="cap">Prior work &#9312;&ndash;&#9315;</div>
+            <img src="./static/images/paper/maldives_prior_work.jpg" alt="Outputs of four prior mitigation methods, numbered 1 to 4." loading="lazy">
+          </figure>
+          <figure class="cell ok ours">
+            <div class="cap">RADS (ours)</div>
+            <img src="./static/images/paper/maldives_rads.jpg" alt="RADS output: a new seashore at sunset." loading="lazy">
+          </figure>
+        </div>
+        <p class="note"><span>&#9312; Wen et al. (2024)</span> &middot; <span>&#9313; Ren et al. (2024)</span> &middot; <span>&#9314; Hintersdorf et al. (2024)</span> &middot; <span>&#9315; Jain et al. (2025)</span></p>
+        <div class="takeaway">
+          <b>The goal:</b> remove the copy without giving up image quality or faithfulness to the prompt.
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ---------- memorization happens early ---------- -->
+    <section id="early">
+      <div class="wrap">
+        <h2>Memorization is decided in the first few steps<span class="sub">Text guidance is turned on for only the first k denoising steps, then turned off.</span></h2>
+        <p class="prompt"><b>Prompt:</b> <i>"The No Limits Business Woman Podcast"</i></p>
+        <div class="grid grid-4">
+          <figure class="cell">
+            <div class="cap">k = 0 steps</div>
+            <img src="./static/images/paper/early_0.jpg" alt="No text guidance: an unrelated sketch." loading="lazy">
+          </figure>
+          <figure class="cell">
+            <div class="cap">k = 1 step</div>
+            <img src="./static/images/paper/early_1.jpg" alt="One step of text guidance: a floral texture." loading="lazy">
+          </figure>
+          <figure class="cell fail">
+            <div class="cap">k = 2 steps</div>
+            <img src="./static/images/paper/early_2.jpg" alt="Two steps of text guidance: the memorized podcast cover." loading="lazy">
+          </figure>
+          <figure class="cell fail">
+            <div class="cap">Memorized image</div>
+            <img src="./static/images/paper/early_memorized.jpg" alt="The memorized podcast cover." loading="lazy">
+          </figure>
+        </div>
+        <div class="takeaway">
+          <b>Insight:</b> Two steps of caption guidance are enough to lock in the memorized image. Once a trajectory
+          falls into this <i>attraction basin</i>, it is hard to get out, so a fix has to act early. And because the
+          caption is what pulls the trajectory in, RADS steers the <b>caption embedding</b> rather than the image
+          latent.
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ---------- method ---------- -->
+    <section id="method">
+      <div class="wrap">
+        <h2>Reachability-Aware Diffusion Steering<span class="sub">Treat denoising as a dynamical system and borrow a safety tool from control theory.</span></h2>
+        <figure>
+          <img class="framed" src="./static/images/paper/rads_overview.jpg" alt="Overview of RADS: the unmitigated latent trajectory falls into the memorization basin, while the RADS policy steers around it." loading="lazy">
+          <figcaption>
+            Without mitigation (black), the trajectory falls into the memorization basin and returns the training
+            image. RADS models that basin as a <b>backward reachable tube (BRT)</b>, and its policy
+            \(\pi_\phi\) (green) steers around it.
+          </figcaption>
+        </figure>
+        <p class="lead">
+          In robotics, <b>reachability analysis</b> asks which states will inevitably lead a system into failure.
+          RADS asks the same question about image generation. The <i>state</i> is the noisy latent, the
+          <i>control</i> is a small nudge to the caption embedding at each step, and <i>failure</i> is a state with
+          an unusually large classifier-free guidance (CFG) norm, a known signature of memorization.
+        </p>
+        <ol class="algo">
+          <li><b>Shrink the action space.</b> A VAE compresses the 77&times;768 CLIP caption embedding into 64
+            dimensions. At step \(t\) the policy adds \(u_t\) in that space:
+            \(\tilde{e}_t = \mathrm{Dec}(\mathrm{Enc}(e_c) + u_t)\).</li>
+          <li><b>Flag risky states.</b> A target function \(\ell\) turns negative once the CFG norm
+            \(\lVert \epsilon_\theta(x_t, \tilde{e}_t) - \epsilon_\theta(x_t, \varnothing) \rVert_2\) passes a
+            threshold \(\beta\).</li>
+          <li><b>Learn a safety critic.</b> \(Q^{\text{safe}}\) predicts whether the trajectory will enter that
+            failure set at any later step, using a minimum-over-time backup (below).</li>
+          <li><b>Train the policy offline.</b> Constrained soft actor-critic maximizes the CLIP image&ndash;text
+            similarity of the final image, subject to \(\mathbb{E}[Q^{\text{safe}}] \ge \delta\), enforced with a
+            Lagrange multiplier.</li>
+          <li><b>Steer at sampling time.</b> One forward pass of a small policy network per denoising step. The
+            diffusion model's weights never change.</li>
         </ol>
+        <div class="eq">
+          \[ Q^{\text{safe}}(s_t, u_t) = \mathbb{E}\Big[\min\big\{\ell(s_t, u_t),\; Q^{\text{safe}}(s_{t+1}, u_{t+1})\big\}\Big] \]
+        </div>
+        <div class="takeaway">
+          <b>Why a minimum instead of a sum?</b> A standard discounted-sum critic averages risk over the whole
+          trajectory, so a brief dip into the memorization basin can look harmless. The minimum flags any
+          trajectory that enters it at any step. Swapping in the standard sum hurts FID and CLIP and makes training
+          less stable.
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="section">
-    <div class="container is-max-desktop">
-      <h2 class="title is-3 has-text-centered">Examples</h2>
+    <div class="divider"></div>
 
-      <!-- Example 1 -->
-      <h3 class="title is-5" style="margin-bottom: 0.5rem;">RADS achieves mitigation with the highest
-        generation diversity.</h3>
-      <div class="content">
-        <p style="margin-bottom: 1rem;"><strong>Prompt:</strong> "Michael Fassbender to Star In <i> Assassin's Creed
-          </i> Movie"</p>
-      </div>
-      <div class="columns is-mobile is-multiline is-centered has-text-centered" style="margin-bottom: 2rem;">
-        <div class="column is-4-mobile is-2-tablet">
-          <img src="./static/images/diversity_16041_0-3/none.png" alt="None" style="width: 100%; border-radius: 5px;" />
-          <p style="margin-top: 0.5rem; font-size: 0.9rem;">Memorized</p>
+    <!-- ---------- results ---------- -->
+    <section id="results">
+      <div class="wrap">
+        <h2>Less memorization, same image quality<span class="sub">Stable Diffusion v1.4 with DDIM sampling. Up and to the right is better.</span></h2>
+        <div data-tabs>
+          <div class="tab-buttons" role="tablist" aria-label="Choose dataset">
+            <button type="button" class="tab-btn" role="tab" id="btn-webster" aria-controls="tab-webster" aria-selected="true">Webster et al.</button>
+            <button type="button" class="tab-btn" role="tab" id="btn-membench" aria-controls="tab-membench" aria-selected="false">MemBench (zero-shot)</button>
+          </div>
+          <figure class="tab-panel" id="tab-webster" role="tabpanel" aria-labelledby="btn-webster">
+            <div class="scroll-x">
+              <img src="./static/images/paper/pareto_webster.png" alt="Pareto plots on the Webster dataset: RADS reaches higher memorization mitigation than Wen, Ren, and Hintersdorf at similar quality and alignment, and much better quality than Jain." loading="lazy">
+            </div>
+            <p class="swipe-hint">Swipe the plot to see prompt alignment &rarr;</p>
+            <figcaption>
+              x-axis: memorization mitigation (1 &minus; SSCD to the training image). Left: image quality
+              (&minus;log<sub>10</sub> FID). Right: prompt alignment (CLIP). RADS is trained on 430 of these prompts;
+              the baselines need no training. Memorized copies inflate CLIP, so a small drop after mitigation is
+              expected.
+            </figcaption>
+          </figure>
+          <figure class="tab-panel" id="tab-membench" role="tabpanel" aria-labelledby="btn-membench" hidden>
+            <div class="scroll-x">
+              <img src="./static/images/paper/pareto_membench.png" alt="Pareto plots on MemBench: RADS achieves the strongest memorization mitigation, with better quality than Jain at comparable alignment." loading="lazy">
+            </div>
+            <p class="swipe-hint">Swipe the plot to see prompt alignment &rarr;</p>
+            <figcaption>
+              3,000 memorized prompts RADS never saw during training. Hintersdorf et al. is omitted because it is
+              too slow to run at this scale.
+            </figcaption>
+          </figure>
         </div>
-        <div class="column is-4-mobile is-2-tablet">
-          <img src="./static/images/diversity_16041_0-3/wen.png" alt="Wen" style="width: 100%; border-radius: 5px;" />
-          <p style="margin-top: 0.5rem; font-size: 0.9rem;">Wen et al. (2024)</p>
-        </div>
-        <div class="column is-4-mobile is-2-tablet">
-          <img src="./static/images/diversity_16041_0-3/ren.png" alt="Ren" style="width: 100%; border-radius: 5px;" />
-          <p style="margin-top: 0.5rem; font-size: 0.9rem;">Ren et al. (2024)</p>
-        </div>
-        <div class="column is-4-mobile is-2-tablet">
-          <img src="./static/images/diversity_16041_0-3/hintersdorf.png" alt="Hintersdorf"
-            style="width: 100%; border-radius: 5px;" />
-          <p style="margin-top: 0.5rem; font-size: 0.9rem;">Hintersdorf et al. (2024)</p>
-        </div>
-        <div class="column is-4-mobile is-2-tablet">
-          <img src="./static/images/diversity_16041_0-3/jain.png" alt="Jain" style="width: 100%; border-radius: 5px;" />
-          <p style="margin-top: 0.5rem; font-size: 0.9rem;">Jain et al. (2025)</p>
-        </div>
-        <div class="column is-4-mobile is-2-tablet">
-          <img src="./static/images/diversity_16041_0-3/ours.png" alt="Ours" style="width: 100%; border-radius: 5px;" />
-          <p style="margin-top: 0.5rem; font-size: 0.9rem;"><strong>RADS (ours)</strong></p>
-        </div>
-      </div>
 
-      <!-- Example 2 -->
-      <h3 class="title is-5" style="margin-top: 1rem; margin-bottom: 0.5rem;">RADS achieves mitigation on challenging
-        prompts.</h3>
-      <div class="content">
-        <p style="margin-bottom: 1rem;"><strong>Prompt:</strong> "<em>Bloodborne </em> Video: Sony Explains the Game's
-          Procedurally Generated Dungeons"</p>
+        <div class="takeaway">
+          <b>Reading the plots:</b> Wen et al., Ren et al., and Hintersdorf et al. keep quality high but leave much
+          more of the copy. Jain et al. removes slightly more memorization on the training prompts, but its FID
+          doubles (64.0) and its images look alike across prompts. RADS removes most of the copy while keeping FID
+          and CLIP close to the best baselines. On MemBench it pays a moderate cost in quality and alignment
+          relative to Wen et al. and Ren et al.
+        </div>
+
+        <h3>What the policy learns</h3>
+        <figure>
+          <img class="framed narrow" src="./static/images/paper/guidance_norm.png" alt="CFG norm over denoising: standard diffusion rises toward the end, RADS stays low throughout." loading="lazy">
+          <figcaption>
+            CFG norm during denoising, averaged over 50 prompts. Without mitigation (blue), the norm climbs as the
+            trajectory falls into the memorization basin. RADS (orange) keeps it low from the first steps.
+          </figcaption>
+        </figure>
+        <ul class="bullets">
+          <li><b>Cheap at sampling time:</b> 2.9 s per image on an A100, versus 2.3 s with no mitigation and
+            104 s for Hintersdorf et al.</li>
+          <li><b>Leaves ordinary prompts alone:</b> on 1,000 COCO captions, CLIP moves from 0.312 to 0.308 and FID
+            from 5.45 to 5.26.</li>
+          <li><b>Works on SDXL:</b> on an SDXL model fine-tuned to memorize 51 images, similarity to the training
+            image drops from 0.49 to 0.36.</li>
+        </ul>
       </div>
-      <div class="columns is-mobile is-multiline is-centered has-text-centered">
-        <div class="column is-4-mobile is-2-tablet">
-          <img src="./static/images/challenging_3816_0-3/none.png" alt="None"
-            style="width: 100%; border-radius: 5px;" />
-          <p style="margin-top: 0.5rem; font-size: 0.9rem;">Memorized</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ---------- examples ---------- -->
+    <section id="examples">
+      <div class="wrap">
+        <h2>Examples<span class="sub">Each tile shows four random seeds for the same prompt.</span></h2>
+
+        <h3>Diverse images instead of one copy</h3>
+        <p class="prompt"><b>Prompt:</b> "Michael Fassbender to Star In <i>Assassin's Creed</i> Movie"</p>
+        <div class="grid grid-6">
+          <figure class="cell fail"><div class="cap">Memorized</div><img src="./static/images/paper/diversity_memorized.jpg" alt="Memorized output" loading="lazy"></figure>
+          <figure class="cell"><div class="cap">Wen '24</div><img src="./static/images/paper/diversity_wen.jpg" alt="Wen et al. (2024)" loading="lazy"></figure>
+          <figure class="cell"><div class="cap">Ren '24</div><img src="./static/images/paper/diversity_ren.jpg" alt="Ren et al. (2024)" loading="lazy"></figure>
+          <figure class="cell"><div class="cap">Hintersdorf '24</div><img src="./static/images/paper/diversity_hintersdorf.jpg" alt="Hintersdorf et al. (2024)" loading="lazy"></figure>
+          <figure class="cell"><div class="cap">Jain '25</div><img src="./static/images/paper/diversity_jain.jpg" alt="Jain et al. (2025)" loading="lazy"></figure>
+          <figure class="cell ok"><div class="cap">RADS (ours)</div><img src="./static/images/paper/diversity_rads.jpg" alt="RADS (ours)" loading="lazy"></figure>
         </div>
-        <div class="column is-4-mobile is-2-tablet">
-          <img src="./static/images/challenging_3816_0-3/wen.png" alt="Wen" style="width: 100%; border-radius: 5px;" />
-          <p style="margin-top: 0.5rem; font-size: 0.9rem;">Wen et al. (2024)</p>
+        <p class="note">Ren et al. and Hintersdorf et al. keep returning the red-carpet photo, and Jain et al. loses
+          image quality. RADS gives four distinct, clean images.</p>
+
+        <h3>A prompt the baselines can't escape</h3>
+        <p class="prompt"><b>Prompt:</b> "<i>Dredd</i> Sequel Would Require More Star Power According to Producer"</p>
+        <div class="grid grid-6">
+          <figure class="cell fail"><div class="cap">Memorized</div><img src="./static/images/paper/challenging_memorized.jpg" alt="Memorized output" loading="lazy"></figure>
+          <figure class="cell"><div class="cap">Wen '24</div><img src="./static/images/paper/challenging_wen.jpg" alt="Wen et al. (2024)" loading="lazy"></figure>
+          <figure class="cell"><div class="cap">Ren '24</div><img src="./static/images/paper/challenging_ren.jpg" alt="Ren et al. (2024)" loading="lazy"></figure>
+          <figure class="cell"><div class="cap">Hintersdorf '24</div><img src="./static/images/paper/challenging_hintersdorf.jpg" alt="Hintersdorf et al. (2024)" loading="lazy"></figure>
+          <figure class="cell"><div class="cap">Jain '25</div><img src="./static/images/paper/challenging_jain.jpg" alt="Jain et al. (2025)" loading="lazy"></figure>
+          <figure class="cell ok"><div class="cap">RADS (ours)</div><img src="./static/images/paper/challenging_rads.jpg" alt="RADS (ours)" loading="lazy"></figure>
         </div>
-        <div class="column is-4-mobile is-2-tablet">
-          <img src="./static/images/challenging_3816_0-3/ren.png" alt="Ren" style="width: 100%; border-radius: 5px;" />
-          <p style="margin-top: 0.5rem; font-size: 0.9rem;">Ren et al. (2024)</p>
-        </div>
-        <div class="column is-4-mobile is-2-tablet">
-          <img src="./static/images/challenging_3816_0-3/hintersdorf.png" alt="Hintersdorf"
-            style="width: 100%; border-radius: 5px;" />
-          <p style="margin-top: 0.5rem; font-size: 0.9rem;">Hintersdorf et al. (2024)</p>
-        </div>
-        <div class="column is-4-mobile is-2-tablet">
-          <img src="./static/images/challenging_3816_0-3/jain.png" alt="Jain"
-            style="width: 100%; border-radius: 5px;" />
-          <p style="margin-top: 0.5rem; font-size: 0.9rem;">Jain et al. (2025)</p>
-        </div>
-        <div class="column is-4-mobile is-2-tablet">
-          <img src="./static/images/challenging_3816_0-3/ours.png" alt="Ours"
-            style="width: 100%; border-radius: 5px;" />
-          <p style="margin-top: 0.5rem; font-size: 0.9rem;"><strong>RADS (ours)</strong></p>
+        <p class="note">Ren et al. and Hintersdorf et al. reproduce the memorized poster on every seed, and Wen et al.
+          escapes on only some seeds. Jain et al. avoids the copy but the images become unrecognizable. RADS avoids
+          it on every seed while keeping the action-film style.</p>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ---------- citation ---------- -->
+    <section id="citation">
+      <div class="wrap">
+        <h2>Citation</h2>
+        <div class="bib-wrap">
+          <button type="button" class="copy-btn">Copy</button>
+          <pre class="bib"><code>@inproceedings{karnik2026steering,
+  title     = {Steering Away from Memorization: Reachability-Constrained
+               Reinforcement Learning for Text-to-Image Diffusion},
+  author    = {Karnik, Sathwik and Kim, Juyeop and Koyejo, Sanmi and
+               Lee, Jong-Seok and Bansal, Somil},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2026}
+}</code></pre>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </main>
 
   <footer class="footer">
     <div class="container">
@@ -298,13 +436,16 @@
           <div class="content">
             <p>
               This website borrows the style of the <a href="https://github.com/nerfies/nerfies.github.io">Nerfies
-                website source code</a>.
+                website source code</a> and the <a href="https://xinyunsunshine.github.io/prompt-rl/">Prompt-Driven
+                Exploration</a> project page.
             </p>
           </div>
         </div>
       </div>
     </div>
   </footer>
+
+  <script src="./static/js/blog.js"></script>
 
 </body>
 
