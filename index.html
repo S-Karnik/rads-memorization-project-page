@@ -174,7 +174,7 @@
     <section id="punchline">
       <div class="wrap">
         <p class="punchline">Text-to-image models sometimes <b>copy</b> their training data.</p>
-        <p class="punchline">RADS <b>steers</b> them away while they generate, with no retraining.</p>
+        <p class="punchline">RADS learns to <b>steer</b> them away as they generate, leaving the model itself untouched.</p>
         <details class="abstract">
           <summary>Read the abstract</summary>
           <p>
@@ -283,20 +283,28 @@
           <i>control</i> is a small nudge to the caption embedding at each step, and <i>failure</i> is a state with
           an unusually large classifier-free guidance (CFG) norm, a known signature of memorization.
         </p>
+        <p class="lead">
+          RADS never changes the diffusion model. Instead, it trains a <b>separate, lightweight steering policy</b>
+          \(\pi_\phi\) that runs alongside the frozen model and decides how to nudge the caption at every step.
+        </p>
         <ol class="algo">
-          <li><b>Shrink the action space.</b> A VAE compresses the 77&times;768 CLIP caption embedding into 64
-            dimensions. At step \(t\) the policy adds \(u_t\) in that space:
-            \(\tilde{e}_t = \mathrm{Dec}(\mathrm{Enc}(e_c) + u_t)\).</li>
+          <li><b>Add a steering policy.</b> \(\pi_\phi\) is a small MLP, separate from the diffusion model. At
+            each denoising step it looks at the current state (the noisy latent and timestep) and outputs a
+            nudge \(u_t\).</li>
+          <li><b>Apply the nudge to the caption.</b> A VAE compresses the 77&times;768 CLIP caption embedding into
+            64 dimensions. The policy's nudge is added there, and the frozen diffusion model receives
+            \(\tilde{e}_t = \mathrm{Dec}(\mathrm{Enc}(e_c) + u_t)\) in place of the original embedding.</li>
           <li><b>Flag risky states.</b> A target function \(\ell\) turns negative once the CFG norm
             \(\lVert \epsilon_\theta(x_t, \tilde{e}_t) - \epsilon_\theta(x_t, \varnothing) \rVert_2\) passes a
             threshold \(\beta\).</li>
-          <li><b>Learn a safety critic.</b> \(Q^{\text{safe}}\) predicts whether the trajectory will enter that
-            failure set at any later step, using a minimum-over-time backup (below).</li>
-          <li><b>Train the policy offline.</b> Constrained soft actor-critic maximizes the CLIP image&ndash;text
-            similarity of the final image, subject to \(\mathbb{E}[Q^{\text{safe}}] \ge \delta\), enforced with a
-            Lagrange multiplier.</li>
-          <li><b>Steer at sampling time.</b> One forward pass of a small policy network per denoising step. The
-            diffusion model's weights never change.</li>
+          <li><b>Learn a safety critic.</b> A second small network, \(Q^{\text{safe}}\), predicts whether the
+            trajectory will enter that failure set at any later step, using a minimum-over-time backup
+            (below).</li>
+          <li><b>Train the policy offline.</b> Constrained soft actor-critic updates only \(\pi_\phi\) and its
+            critics. It maximizes the CLIP image&ndash;text similarity of the final image, subject to
+            \(\mathbb{E}[Q^{\text{safe}}] \ge \delta\), enforced with a Lagrange multiplier.</li>
+          <li><b>Steer at sampling time.</b> Only the trained policy is needed: one forward pass per denoising
+            step, plugged into the unchanged diffusion model.</li>
         </ol>
         <div class="eq">
           \[ Q^{\text{safe}}(s_t, u_t) = \mathbb{E}\Big[\min\big\{\ell(s_t, u_t),\; Q^{\text{safe}}(s_{t+1}, u_{t+1})\big\}\Big] \]
